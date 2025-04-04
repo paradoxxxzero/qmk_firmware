@@ -93,7 +93,9 @@
     "rgb_matrix": {
         "driver": "ws2812",
         "led_count": 36,
-        "max_brightness": 75,
+        "default": {
+            "animation": "typing_heatmap"
+        },
         "animations": {
             "typing_heatmap": true
         },

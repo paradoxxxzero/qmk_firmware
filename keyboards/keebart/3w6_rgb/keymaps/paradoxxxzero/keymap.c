@@ -220,7 +220,7 @@ XXXXXXX,           KC_ALGR,            TD(TD_L_SYM),       TD(TD_L_MOUSE),     X
                                        XXXXXXX,            XXXXXXX,            XXXXXXX,                      KC_BTN2,            KC_BTN1,            KC_BTN3
     ),
     [L_MEDIA] = LAYOUT_split_3x5_3(
-TD(TD_BOOT),       TD(TD_L_TAP),       TD(TD_L_EXTRA),     TD(TD_L_BASE),      XXXXXXX,                      RGB_TOG,            RGB_MOD,            RGB_HUI,            RGB_SAI,            RGB_VAI,
+TD(TD_BOOT),       TD(TD_L_TAP),       TD(TD_L_EXTRA),     TD(TD_L_BASE),      XXXXXXX,                      RM_TOGG,            RM_SPDU,            RM_HUEU,            RM_SATU,            RM_VALU,
 KC_LGUI,           KC_LALT,            KC_LCTL,            KC_LSFT,            XXXXXXX,                      XXXXXXX,            KC_MPRV,            KC_VOLD,            KC_VOLU,            KC_MNXT,
 XXXXXXX,           KC_ALGR,            TD(TD_L_FUN),       TD(TD_L_MEDIA),     XXXXXXX,                      OU_AUTO,            XXXXXXX,            XXXXXXX,            XXXXXXX,            XXXXXXX,
                                        XXXXXXX,            XXXXXXX,            XXXXXXX,                      KC_MSTP,            KC_MPLY,            KC_MUTE
@@ -258,68 +258,86 @@ UC(0x00E6),       UC(0x00DF),          UC(0x2011),         UC(0x2013),         U
     )
 };
 // clang-format on
+LIB8STATIC fract8 ease8OutCubic(fract8 i) {
+    if (i == 0 || i == 255) {
+        return i;
+    }
+    i           = 255 - i;
+    uint8_t ii  = scale8_LEAVING_R1_DIRTY(i, i);
+    uint8_t iii = scale8_LEAVING_R1_DIRTY(ii, i);
+    cleanup_R1();
+    return 255 - iii;
+}
 
 // RGB matrix rainbow layers
-bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
-    uint8_t mods      = get_mods();
-    uint8_t layer     = get_highest_layer(layer_state | default_layer_state);
-    led_t   led_state = host_keyboard_led_state();
+#define CUSTOM_RAINBOW_EASING_EASE_STEP 2
+static hsv_t layer_hsv = {0, 0, 0};
+bool         rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    uint8_t mods         = get_mods();
+    uint8_t layer        = get_highest_layer(layer_state | default_layer_state);
+    uint8_t time         = scale16by8(g_rgb_timer, qadd8(rgb_matrix_config.speed / 8, 1));
+    bool    is_caps_word = is_caps_word_on();
+    bool    is_caps_lock = host_keyboard_led_state().caps_lock;
+    bool    is_gui       = mods & MOD_BIT(KC_LGUI);
+    bool    is_alt       = mods & MOD_BIT(KC_LALT);
+    bool    is_ctrl      = mods & MOD_BIT(KC_LCTL);
+    bool    is_shift     = mods & MOD_BIT(KC_LSFT);
+    bool    is_alt_gr    = mods & MOD_BIT(KC_RALT);
 
+    if (layer == L_MEDIA || layer == L_NAV || layer == L_MOUSE || layer == L_SYM || layer == L_NUM || layer == L_FUN || layer == L_BUTTON || is_caps_word || is_caps_lock || is_gui || is_alt || is_ctrl || is_shift || is_alt_gr) {
+        layer_hsv.v = MIN(layer_hsv.v + CUSTOM_RAINBOW_EASING_EASE_STEP, 255);
+    } else {
+        layer_hsv.v = MAX(layer_hsv.v - CUSTOM_RAINBOW_EASING_EASE_STEP, 0);
+    }
     for (uint8_t i = led_min; i < led_max; i++) {
-        switch (i) {
-            case 15:
-                rgb_matrix_set_color(i, RGB_RED);
-                break;
-            case 16:
-                rgb_matrix_set_color(i, RGB_ORANGE);
-                break;
-            case 17:
-                rgb_matrix_set_color(i, RGB_YELLOW);
-                break;
-            case 18:
-                rgb_matrix_set_color(i, RGB_GREEN);
-                break;
-            case 19:
-                rgb_matrix_set_color(i, RGB_CYAN);
-                break;
-            case 20:
-                rgb_matrix_set_color(i, RGB_BLUE);
-                break;
-            default:
-                switch (layer) {
-                    case L_MEDIA:
-                        rgb_matrix_set_color(i, RGB_RED);
-                        break;
-                    case L_NAV:
-                        rgb_matrix_set_color(i, RGB_ORANGE);
-                        break;
-                    case L_MOUSE:
-                        rgb_matrix_set_color(i, RGB_YELLOW);
-                        break;
-                    case L_NUM:
-                        rgb_matrix_set_color(i, RGB_CYAN);
-                        break;
-                    case L_FUN:
-                        rgb_matrix_set_color(i, RGB_BLUE);
-                        break;
-                    default:
-                        if (is_caps_word_on()) {
-                            rgb_matrix_set_color(i, RGB_TURQUOISE);
-                        } else if (led_state.caps_lock) {
-                            rgb_matrix_set_color(i, RGB_TEAL);
-                        } else if (mods & MOD_BIT(KC_LGUI)) {
-                            rgb_matrix_set_color(i, RGB_MAGENTA);
-                        } else if (mods & MOD_BIT(KC_LALT)) {
-                            rgb_matrix_set_color(i, RGB_PINK);
-                        } else if (mods & MOD_BIT(KC_LCTL)) {
-                            rgb_matrix_set_color(i, RGB_PURPLE);
-                        } else if (mods & MOD_BIT(KC_LSFT)) {
-                            rgb_matrix_set_color(i, RGB_WHITE);
-                        } else if (mods & MOD_BIT(KC_RALT)) {
-                            rgb_matrix_set_color(i, RGB_GREEN);
-                        }
-                        break;
-                }
+        hsv_t hsv = {rgb_matrix_get_hue(), rgb_matrix_get_sat(), rgb_matrix_get_val()};
+        if (i == 15 || layer == L_MEDIA) {
+            hsv.h += 0;
+        } else if (i == 16 || layer == L_NAV) {
+            hsv.h += 20;
+        } else if (i == 17 || layer == L_MOUSE) {
+            hsv.h += 40;
+        } else if (i == 18 || layer == L_SYM) {
+            hsv.h += 80;
+        } else if (i == 19 || layer == L_NUM) {
+            hsv.h += 120;
+        } else if (i == 20 || layer == L_FUN) {
+            hsv.h += 160;
+        } else if (is_caps_word) {
+            hsv.h += 180;
+            hsv.s = 0;
+        } else if (is_caps_lock) {
+            hsv.h += 180;
+            hsv.s /= 2;
+        } else if (is_gui) {
+            hsv.h += 240;
+        } else if (is_alt) {
+            hsv.h += 220;
+        } else if (is_ctrl) {
+            hsv.h += 200;
+        } else if (is_shift) {
+            hsv.h += 180;
+        } else if (is_alt_gr) {
+            hsv.h += 140;
+        } else if (layer == L_BUTTON) {
+            hsv.h += 100;
+        } else {
+            // Restore layer color
+            hsv.h = layer_hsv.h;
+            hsv.s = layer_hsv.s;
+        }
+
+        if (i >= 15 && i <= 20) {
+            hsv.v = scale8(sin8(time - (i - 15) * 32) / 2 + 128, hsv.v);
+        } else {
+            // Save layer color
+            layer_hsv.h = hsv.h;
+            layer_hsv.s = hsv.s;
+            hsv.v       = scale8(ease8OutCubic(layer_hsv.v), hsv.v);
+        }
+        if (hsv.v > 0) {
+            rgb_t rgb = hsv_to_rgb(hsv);
+            rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
         }
     }
     return false;
