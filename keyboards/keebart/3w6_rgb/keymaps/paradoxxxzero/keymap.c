@@ -1,6 +1,7 @@
 // Copyright 2025 Florian Mounier (https://florian.mounier.dev)
 
 #include QMK_KEYBOARD_H
+#include <lib/lib8tion/lib8tion.h>
 
 enum layers {
     L_BASE = 0, // QWERTY
@@ -186,13 +187,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [L_BASE] = LAYOUT_split_3x5_3(
 KC_Q,              KC_W,               KC_E,               KC_R,               KC_T,                         KC_Y,               KC_U,               KC_I,               KC_O,               KC_P,    
 LGUI_T(KC_A),      LALT_T(KC_S),       LCTL_T(KC_D),       LSFT_T(KC_F),       KC_G,                         KC_H,               LSFT_T(KC_J),       LCTL_T(KC_K),       LALT_T(KC_L),       LGUI_T(KC_SCLN),
-LT(L_BUTTON,KC_Z), LT(L_SYM,KC_X),     KC_C,               KC_V,               KC_B,                         KC_N,               KC_M,               KC_COMM,            LT(L_SYM,KC_DOT),   LT(L_BUTTON,KC_SLSH),
-                                       LT(L_MEDIA,KC_ESC), LT(L_NAV,KC_SPC),   LT(L_MOUSE,KC_TAB),           ALGR_T(KC_ENT),     LT(L_NUM,KC_BSPC),  LT(L_FUN,KC_DEL)
+LT(L_BUTTON,KC_Z), KC_X,               KC_C,               ALGR_T(KC_V),       KC_B,                         KC_N,               ALGR_T(KC_M),       KC_COMM,            KC_DOT,             LT(L_BUTTON,KC_SLSH),
+                                       LT(L_MEDIA,KC_ESC), LT(L_NAV,KC_SPC),   LT(L_MOUSE,KC_TAB),           LT(L_SYM,KC_ENT),   LT(L_NUM,KC_BSPC),  LT(L_FUN,KC_DEL)
     ),
     [L_EXTRA] = LAYOUT_split_3x5_3(
 KC_Q,              KC_C,               KC_O,               KC_P,               KC_W,                         KC_J,               KC_M,               KC_D,               OSL(L_LAFAYETTE),   KC_Y,
 LGUI_T(KC_A),      LALT_T(KC_S),       LCTL_T(KC_E),       LSFT_T(KC_N),       KC_F,                         KC_L,               LSFT_T(KC_R),       LCTL_T(KC_T),       LALT_T(KC_I),       LGUI_T(KC_U),
-LT(L_BUTTON,KC_Z), ALGR_T(KC_X),       KC_MINUS,           KC_V,               KC_B,                         KC_DOT,             KC_H,               KC_G,               ALGR_T(KC_COMM),    LT(L_BUTTON,KC_K),
+LT(L_BUTTON,KC_Z), KC_X,               KC_MINUS,           ALGR_T(KC_V),       KC_B,                         KC_DOT,             ALGR_T(KC_H),       KC_G,               KC_COMM,            LT(L_BUTTON,KC_K),
                                        LT(L_MEDIA,KC_ESC), LT(L_NAV,KC_SPC),   LT(L_MOUSE,KC_TAB),           LT(L_ELSYM,KC_ENT), LT(L_NUM,KC_BSPC),  LT(L_FUN,KC_DEL)
     ),
     [L_TAP] = LAYOUT_split_3x5_3(
