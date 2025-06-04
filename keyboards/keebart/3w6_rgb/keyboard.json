@@ -32,6 +32,17 @@
         "enabled": true,
         "matrix": [0, 0]
     },
+    "mousekey": {
+        "delay": 0,
+        "interval": 16,
+        "max_speed": 6,
+        "time_to_max": 64,
+        "wheel_delay": 0
+    },
+    "tapping": {
+        "permissive_hold": true,
+        "term": 200
+    },
     "community_layouts": ["split_3x5_3"],
     "layouts": {
         "LAYOUT_split_3x5_3": {
