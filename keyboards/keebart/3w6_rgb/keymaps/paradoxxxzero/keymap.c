@@ -1,11 +1,13 @@
 // Copyright 2025 Florian Mounier (https://florian.mounier.dev)
 
 #include QMK_KEYBOARD_H
+#include "keymap_french.h"
 #include <lib/lib8tion/lib8tion.h>
 
 enum layers {
     L_BASE = 0, // QWERTY
-    L_EXTRA,    // ERGO-L on QWERTY emulation
+    L_EL_QW,    // ERGO-L on QWERTY emulation
+    L_EL_AZ,    // ERGO-L on QWERTY emulation
     L_TAP,
     L_BUTTON,
     L_NAV,
@@ -14,14 +16,17 @@ enum layers {
     L_NUM,
     L_FUN,
     L_SYM,
-    L_ELSYM,     // ERGO-L ALTGR emulation
-    L_LAFAYETTE, // ERGO-L LAFAYETTE emulation
+    L_QW_SYM,       // ERGO-L ALTGR emulation on QWERTY
+    L_QW_LAFAYETTE, // ERGO-L LAFAYETTE emulation on QWERTY (unicode)
+    L_AZ_SYM,       // ERGO-L ALTGR emulation on AZERTY
+    L_AZ_LAFAYETTE, // ERGO-L LAFAYETTE emulation on QWERTY (unicode)
 };
 
 enum tapdance_keycodes {
     TD_BOOT = 0, //
     TD_L_BASE,
-    TD_L_EXTRA,
+    TD_L_EL_QW,
+    TD_L_EL_AZ,
     TD_L_TAP,
     TD_L_BUTTON,
     TD_L_NAV,
@@ -44,9 +49,14 @@ void td_l_base(tap_dance_state_t *state, void *user_data) {
         default_layer_set(1UL << L_BASE);
     }
 }
-void td_l_extra(tap_dance_state_t *state, void *user_data) {
+void td_l_el_qw(tap_dance_state_t *state, void *user_data) {
     if (state->count >= 2) {
-        default_layer_set(1UL << L_EXTRA);
+        default_layer_set(1UL << L_EL_QW);
+    }
+}
+void td_l_el_az(tap_dance_state_t *state, void *user_data) {
+    if (state->count >= 2) {
+        default_layer_set(1UL << L_EL_AZ);
     }
 }
 void td_l_tap(tap_dance_state_t *state, void *user_data) {
@@ -108,7 +118,8 @@ void td_caps(tap_dance_state_t *state, void *user_data) {
 tap_dance_action_t tap_dance_actions[] = {
     [TD_BOOT]   = ACTION_TAP_DANCE_FN(td_boot),
     [TD_L_BASE] = ACTION_TAP_DANCE_FN(td_l_base),
-    [TD_L_EXTRA] = ACTION_TAP_DANCE_FN(td_l_extra),
+    [TD_L_EL_QW] = ACTION_TAP_DANCE_FN(td_l_el_qw),
+    [TD_L_EL_AZ] = ACTION_TAP_DANCE_FN(td_l_el_az),
     [TD_L_TAP] = ACTION_TAP_DANCE_FN(td_l_tap),
     [TD_L_BUTTON] = ACTION_TAP_DANCE_FN(td_l_button),
     [TD_L_NAV] = ACTION_TAP_DANCE_FN(td_l_nav),
@@ -190,11 +201,17 @@ LGUI_T(KC_A),      LALT_T(KC_S),       LCTL_T(KC_D),       LSFT_T(KC_F),       K
 LT(L_BUTTON,KC_Z), KC_X,               KC_C,               ALGR_T(KC_V),       KC_B,                         KC_N,               ALGR_T(KC_M),       KC_COMM,            KC_DOT,             LT(L_BUTTON,KC_SLSH),
                                        LT(L_MEDIA,KC_ESC), LT(L_NAV,KC_SPC),   LT(L_MOUSE,KC_TAB),           LT(L_SYM,KC_ENT),   LT(L_NUM,KC_BSPC),  LT(L_FUN,KC_DEL)
     ),
-    [L_EXTRA] = LAYOUT_split_3x5_3(
-KC_Q,              KC_C,               KC_O,               KC_P,               KC_W,                         KC_J,               KC_M,               KC_D,               OSL(L_LAFAYETTE),   KC_Y,
+    [L_EL_QW] = LAYOUT_split_3x5_3(
+KC_Q,              KC_C,               KC_O,               KC_P,               KC_W,                         KC_J,               KC_M,               KC_D,               OSL(L_QW_LAFAYETTE),KC_Y,
 LGUI_T(KC_A),      LALT_T(KC_S),       LCTL_T(KC_E),       LSFT_T(KC_N),       KC_F,                         KC_L,               LSFT_T(KC_R),       LCTL_T(KC_T),       LALT_T(KC_I),       LGUI_T(KC_U),
-LT(L_BUTTON,KC_Z), KC_X,               KC_MINUS,           ALGR_T(KC_V),       KC_B,                         KC_DOT,             ALGR_T(KC_H),       KC_G,               KC_COMM,            LT(L_BUTTON,KC_K),
-                                       LT(L_MEDIA,KC_ESC), LT(L_NAV,KC_SPC),   LT(L_MOUSE,KC_TAB),           LT(L_ELSYM,KC_ENT), LT(L_NUM,KC_BSPC),  LT(L_FUN,KC_DEL)
+LT(L_BUTTON,KC_Z), KC_X,               KC_MINUS,           LT(L_QW_SYM,KC_V),  KC_B,                         KC_DOT,             LT(L_QW_SYM,KC_H),  KC_G,               KC_COMM,            LT(L_BUTTON,KC_K),
+                                       LT(L_MEDIA,KC_ESC), LT(L_NAV,KC_SPC),   LT(L_MOUSE,KC_TAB),           LT(L_SYM,KC_ENT),LT(L_NUM,KC_BSPC),  LT(L_FUN,KC_DEL)
+    ),
+    [L_EL_AZ] = LAYOUT_split_3x5_3(
+KC_A,              KC_C,               KC_O,               KC_P,               KC_Z,                         KC_J,               KC_SCLN,            KC_D,               OSL(L_AZ_LAFAYETTE),KC_Y,
+LGUI_T(KC_Q),      LALT_T(KC_S),       LCTL_T(KC_E),       LSFT_T(KC_N),       KC_F,                         KC_L,               LSFT_T(KC_R),       LCTL_T(KC_T),       LALT_T(KC_I),       LGUI_T(KC_U),
+LT(L_BUTTON,KC_W), KC_X,               KC_6,               LT(L_QW_SYM,KC_V),  KC_B,                         S(KC_COMM),         LT(L_QW_SYM,KC_H),  KC_G,               KC_M,               LT(L_BUTTON,KC_K),
+                                       LT(L_MEDIA,KC_ESC), LT(L_NAV,KC_SPC),   LT(L_MOUSE,KC_TAB),           LT(L_SYM,KC_ENT),LT(L_NUM,KC_BSPC),  LT(L_FUN,KC_DEL)
     ),
     [L_TAP] = LAYOUT_split_3x5_3(
 KC_Q,              KC_W,               KC_E,               KC_R,               KC_T,                         KC_Y,               KC_U,               KC_I,               KC_O,               KC_P,
@@ -209,54 +226,65 @@ C_UND,             C_CUT,              C_CPY,              C_PST,              C
                                        KC_BTN3,            KC_BTN1,            KC_BTN2,                      KC_BTN2,            KC_BTN1,            KC_BTN3
     ),
     [L_NAV] = LAYOUT_split_3x5_3(
-TD(TD_BOOT),       TD(TD_L_TAP),       TD(TD_L_EXTRA),     TD(TD_L_BASE),      XXXXXXX,                      C_RDO,              C_PST,              C_CPY,              C_CUT,              C_UND,
+TD(TD_BOOT),       TD(TD_L_TAP),       TD(TD_L_EL_QW),     TD(TD_L_BASE),      TD(TD_L_EL_AZ),               C_RDO,              C_PST,              C_CPY,              C_CUT,              C_UND,
 KC_LGUI,           KC_LALT,            KC_LCTL,            KC_LSFT,            XXXXXXX,                      TD(TD_CAPS),        KC_LEFT,            KC_DOWN,            KC_UP,              KC_RGHT,
 XXXXXXX,           KC_ALGR,            TD(TD_L_NUM),       TD(TD_L_NAV),       XXXXXXX,                      KC_INS,             KC_HOME,            KC_PGDN,            KC_PGUP,            KC_END,
                                        XXXXXXX,            XXXXXXX,            XXXXXXX,                      KC_ENT,             KC_BSPC,            KC_DEL   
     ),
     [L_MOUSE] = LAYOUT_split_3x5_3(
-TD(TD_BOOT),       TD(TD_L_TAP),       TD(TD_L_EXTRA),     TD(TD_L_BASE),      XXXXXXX,                      C_RDO,              C_PST,              C_CPY,              C_CUT,              C_UND,
+TD(TD_BOOT),       TD(TD_L_TAP),       TD(TD_L_EL_QW),     TD(TD_L_BASE),      TD(TD_L_EL_AZ),               C_RDO,              C_PST,              C_CPY,              C_CUT,              C_UND,
 KC_LGUI,           KC_LALT,            KC_LCTL,            KC_LSFT,            XXXXXXX,                      XXXXXXX,            KC_MS_L,            KC_MS_D,            KC_MS_U,            KC_MS_R,
 XXXXXXX,           KC_ALGR,            TD(TD_L_SYM),       TD(TD_L_MOUSE),     XXXXXXX,                      XXXXXXX,            KC_WH_L,            KC_WH_D,            KC_WH_U,            KC_WH_R,
                                        XXXXXXX,            XXXXXXX,            XXXXXXX,                      KC_BTN2,            KC_BTN1,            KC_BTN3
     ),
     [L_MEDIA] = LAYOUT_split_3x5_3(
-TD(TD_BOOT),       TD(TD_L_TAP),       TD(TD_L_EXTRA),     TD(TD_L_BASE),      XXXXXXX,                      RM_TOGG,            RM_SPDU,            RM_HUEU,            RM_SATU,            RM_VALU,
+TD(TD_BOOT),       TD(TD_L_TAP),       TD(TD_L_EL_QW),     TD(TD_L_BASE),      TD(TD_L_EL_AZ),               RM_TOGG,            RM_SPDU,            RM_HUEU,            RM_SATU,            RM_VALU,
 KC_LGUI,           KC_LALT,            KC_LCTL,            KC_LSFT,            XXXXXXX,                      XXXXXXX,            KC_MPRV,            KC_VOLD,            KC_VOLU,            KC_MNXT,
 XXXXXXX,           KC_ALGR,            TD(TD_L_FUN),       TD(TD_L_MEDIA),     XXXXXXX,                      OU_AUTO,            XXXXXXX,            XXXXXXX,            XXXXXXX,            XXXXXXX,
                                        XXXXXXX,            XXXXXXX,            XXXXXXX,                      KC_MSTP,            KC_MPLY,            KC_MUTE
     ),
     [L_NUM] = LAYOUT_split_3x5_3(
-KC_LBRC,           KC_7,               KC_8,               KC_9,               KC_RBRC,                      XXXXXXX,            TD(TD_L_BASE),      TD(TD_L_EXTRA),     TD(TD_L_TAP),       TD(TD_BOOT),
+KC_LBRC,           KC_7,               KC_8,               KC_9,               KC_RBRC,                      TD(TD_L_EL_AZ),     TD(TD_L_BASE),      TD(TD_L_EL_QW),     TD(TD_L_TAP),       TD(TD_BOOT),
 KC_SCLN,           KC_4,               KC_5,               KC_6,               KC_EQL,                       XXXXXXX,            KC_LSFT,            KC_LCTL,            KC_LALT,            KC_LGUI,
 KC_GRV,            KC_1,               KC_2,               KC_3,               KC_BSLS,                      XXXXXXX,            TD(TD_L_NUM),       TD(TD_L_NAV),       KC_ALGR,            XXXXXXX,
                                        KC_DOT,             KC_0,               KC_MINS,                      XXXXXXX,            XXXXXXX,            XXXXXXX
     ),
     [L_SYM] = LAYOUT_split_3x5_3(
-KC_LCBR,           KC_AMPR,            KC_ASTR,            KC_LPRN,            KC_RCBR,                      XXXXXXX,            TD(TD_L_BASE),      TD(TD_L_EXTRA),     TD(TD_L_TAP),       TD(TD_BOOT),
+KC_LCBR,           KC_AMPR,            KC_ASTR,            KC_LPRN,            KC_RCBR,                      TD(TD_L_EL_AZ),     TD(TD_L_BASE),      TD(TD_L_EL_QW),     TD(TD_L_TAP),       TD(TD_BOOT),
 KC_COLN,           KC_DLR,             KC_PERC,            KC_CIRC,            KC_PLUS,                      XXXXXXX,            KC_LSFT,            KC_LCTL,            KC_LALT,            KC_LGUI,
 KC_TILD,           KC_EXLM,            KC_AT,              KC_HASH,            KC_PIPE,                      XXXXXXX,            TD(TD_L_SYM),       TD(TD_L_MOUSE),     KC_ALGR,            XXXXXXX,
                                        KC_LPRN,            KC_RPRN,            KC_UNDS,                      XXXXXXX,            XXXXXXX,            XXXXXXX 
     ),
     [L_FUN] = LAYOUT_split_3x5_3(
-KC_F12,            KC_F7,              KC_F8,              KC_F9,              KC_PSCR,                      XXXXXXX,            TD(TD_L_BASE),      TD(TD_L_EXTRA),     TD(TD_L_TAP),       TD(TD_BOOT),
+KC_F12,            KC_F7,              KC_F8,              KC_F9,              KC_PSCR,                      TD(TD_L_EL_AZ),     TD(TD_L_BASE),      TD(TD_L_EL_QW),     TD(TD_L_TAP),       TD(TD_BOOT),
 KC_F11,            KC_F4,              KC_F5,              KC_F6,              KC_SCRL,                      XXXXXXX,            KC_LSFT,            KC_LCTL,            KC_LALT,            KC_LGUI,
 KC_F10,            KC_F1,              KC_F2,              KC_F3,              KC_PAUS,                      XXXXXXX,            TD(TD_L_FUN),       TD(TD_L_MEDIA),     KC_ALGR,            XXXXXXX,
                                        KC_APP,             KC_SPC,             KC_TAB,                       XXXXXXX,            XXXXXXX,            XXXXXXX
     ),
-    [L_ELSYM] = LAYOUT_split_3x5_3(
-    // Ergo-L/Bepolar altGr syms
+    [L_QW_SYM] = LAYOUT_split_3x5_3(
 KC_CIRC,           KC_LABK,            KC_RABK,            KC_DLR,             KC_PERC,                      KC_AT,              KC_AMPR,            KC_ASTR,            KC_QUOT,            KC_GRV,
 KC_LCBR,           KC_LPRN,            KC_RPRN,            KC_RCBR,            KC_EQL,                       KC_BSLS,            KC_PLUS,            KC_MINS,            KC_SLSH,            KC_DQUO,
 KC_TILD,           KC_LBRC,            KC_RBRC,            KC_UNDS,            KC_HASH,                      KC_PIPE,            KC_EXLM,            KC_SCLN,            KC_COLN,            KC_QUES,
                                        LT(L_MEDIA,KC_ESC), LT(L_NAV,KC_SPC),   LT(L_MOUSE,KC_TAB),           ALGR_T(KC_ENT),     LT(L_NUM,KC_BSPC),  LT(L_FUN,KC_DEL)
     ),
-    [L_LAFAYETTE] = LAYOUT_split_3x5_3(
+    [L_QW_LAFAYETTE] = LAYOUT_split_3x5_3(
 UC(0x00E2),       UC(0x00E7),          UC(0x0153),         UC(0x00F4),         XXXXXXX,                      XXXXXXX,            UC(0x00B5),         UC(0x005F),         XXXXXXX,            UC(0x00FB),
 UC(0x00E0),       UC(0x00E9),          UC(0x00E8),         UC(0x00EA),         UC(0x00F1),                   KC_LPRN,            KC_RPRN,            UC(0x00EE),         UC(0x00EF),         UC(0x00F9),
 UC(0x00E6),       UC(0x00DF),          UC(0x2011),         UC(0x2013),         UC(0x2014),                   UC(0x2026),         UC(0x00F5),         XXXXXXX,            UC(0x00B7),         XXXXXXX,
                                        XXXXXXX,            UC(0x2019),         XXXXXXX,                      UC_PREV,            UC_NEXT,            XXXXXXX
-    )
+    ),
+    [L_AZ_SYM] = LAYOUT_split_3x5_3(
+FR_CIRC,           FR_LABK,            FR_RABK,            FR_DLR,             FR_PERC,                      FR_AT,              FR_AMPR,            FR_ASTR,            FR_QUOT,            FR_GRV,
+FR_LCBR,           FR_LPRN,            FR_RPRN,            FR_RCBR,            FR_EQL,                       FR_BSLS,            FR_PLUS,            FR_MINS,            FR_SLSH,            FR_DQUO,
+FR_TILD,           FR_LBRC,            FR_RBRC,            FR_UNDS,            FR_HASH,                      FR_PIPE,            FR_EXLM,            FR_SCLN,            FR_COLN,            FR_QUES,
+                                       LT(L_MEDIA,KC_ESC), LT(L_NAV,KC_SPC),   LT(L_MOUSE,KC_TAB),           ALGR_T(KC_ENT),     LT(L_NUM,KC_BSPC),  LT(L_FUN,KC_DEL)
+    ),
+    [L_AZ_LAFAYETTE] = LAYOUT_split_3x5_3(
+UC(0x00E2),       FR_CCED,             UC(0x0153),         UC(0x00F4),         XXXXXXX,                      XXXXXXX,            FR_MICR,            FR_UNDS,            XXXXXXX,            UC(0x00FB),
+FR_AGRV,          FR_EACU,             FR_EGRV,            UC(0x00EA),         UC(0x00F1),                   FR_LPRN,            FR_RPRN,            UC(0x00EE),         UC(0x00EF),         FR_UGRV,
+UC(0x00E6),       UC(0x00DF),          UC(0x2011),         UC(0x2013),         UC(0x2014),                   UC(0x2026),         UC(0x00F5),         XXXXXXX,            UC(0x00B7),         XXXXXXX,
+                                       XXXXXXX,            UC(0x2019),         XXXXXXX,                      UC_PREV,            UC_NEXT,            XXXXXXX
+    ),
 };
 // clang-format on
 LIB8STATIC fract8 ease8OutCubic(fract8 i) {
@@ -273,17 +301,28 @@ LIB8STATIC fract8 ease8OutCubic(fract8 i) {
 // RGB matrix rainbow layers
 #define CUSTOM_RAINBOW_EASING_EASE_STEP 2
 static hsv_t layer_hsv = {0, 0, 0};
-bool         rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
-    uint8_t mods         = get_mods();
-    uint8_t layer        = get_highest_layer(layer_state | default_layer_state);
-    uint8_t time         = scale16by8(g_rgb_timer, qadd8(rgb_matrix_config.speed / 8, 1));
-    bool    is_caps_word = is_caps_word_on();
-    bool    is_caps_lock = host_keyboard_led_state().caps_lock;
-    bool    is_gui       = mods & MOD_BIT(KC_LGUI);
-    bool    is_alt       = mods & MOD_BIT(KC_LALT);
-    bool    is_ctrl      = mods & MOD_BIT(KC_LCTL);
-    bool    is_shift     = mods & MOD_BIT(KC_LSFT);
-    bool    is_alt_gr    = mods & MOD_BIT(KC_RALT);
+
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    uint8_t mods          = get_mods();
+    uint8_t layer         = get_highest_layer(layer_state);
+    uint8_t default_layer = get_highest_layer(default_layer_state);
+    uint8_t time          = scale16by8(g_rgb_timer, qadd8(rgb_matrix_config.speed / 8, 1));
+    bool    is_caps_word  = is_caps_word_on();
+    bool    is_caps_lock  = host_keyboard_led_state().caps_lock;
+    bool    is_gui        = mods & MOD_BIT(KC_LGUI);
+    bool    is_alt        = mods & MOD_BIT(KC_LALT);
+    bool    is_ctrl       = mods & MOD_BIT(KC_LCTL);
+    bool    is_shift      = mods & MOD_BIT(KC_LSFT);
+    bool    is_alt_gr     = mods & MOD_BIT(KC_RALT);
+
+    uint8_t base_hue = 0;
+    if (default_layer == L_EL_QW) {
+        base_hue = 64;
+    } else if (default_layer == L_EL_AZ) {
+        base_hue = 128;
+    } else if (default_layer == L_TAP) {
+        base_hue = 192;
+    }
 
     if (layer == L_MEDIA || layer == L_NAV || layer == L_MOUSE || layer == L_SYM || layer == L_NUM || layer == L_FUN || layer == L_BUTTON || is_caps_word || is_caps_lock || is_gui || is_alt || is_ctrl || is_shift || is_alt_gr) {
         layer_hsv.v = MIN(layer_hsv.v + CUSTOM_RAINBOW_EASING_EASE_STEP, 255);
@@ -291,7 +330,7 @@ bool         rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_ma
         layer_hsv.v = MAX(layer_hsv.v - CUSTOM_RAINBOW_EASING_EASE_STEP, 0);
     }
     for (uint8_t i = led_min; i < led_max; i++) {
-        hsv_t hsv = {rgb_matrix_get_hue(), rgb_matrix_get_sat(), rgb_matrix_get_val()};
+        hsv_t hsv = {rgb_matrix_get_hue() + base_hue, rgb_matrix_get_sat(), rgb_matrix_get_val()};
         if (i == 15 || layer == L_MEDIA) {
             hsv.h += 0;
         } else if (i == 16 || layer == L_NAV) {
